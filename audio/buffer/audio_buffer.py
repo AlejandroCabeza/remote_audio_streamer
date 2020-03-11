@@ -19,9 +19,15 @@ class SynchronousAudioBuffer(IAudioBuffer):
 
     def read(self) -> bytes:
         raw_audio_bytes: bytes = self._raw_data_audio_buffer.read(self._raw_data_frame_size)
-        if len(raw_audio_bytes) != self._raw_data_frame_size:
-            return b""
+        if self._do_audio_bytes_need_padding(raw_audio_bytes):
+            raw_audio_bytes = self._pad_audio_bytes(raw_audio_bytes)
         return raw_audio_bytes
+
+    def _do_audio_bytes_need_padding(self, audio_bytes: bytes) -> bool:
+        return len(audio_bytes) not in (0, self._raw_data_frame_size)
+
+    def _pad_audio_bytes(self, audio_bytes: bytes) -> bytes:
+        return audio_bytes.ljust(self._raw_data_frame_size, b'\x00')
 
     def get_pointer_position_as_percentage(self) -> float:
         frame_index: int = int(self._get_pointer_position() / self._raw_data_frame_size)
