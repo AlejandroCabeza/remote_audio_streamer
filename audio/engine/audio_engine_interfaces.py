@@ -3,6 +3,7 @@ from typing import Set, Callable
 from abc import ABC, abstractmethod
 # Third-Party Imports
 # Project Imports
+from audio.playable.playable_interfaces import IPlayableList
 from audio.utils.observer import ISongProgressPercentageObservable, ISongVolumeLevelObservable
 
 
@@ -19,7 +20,15 @@ class IAudioEngine(ABC):
         pass
 
     @abstractmethod
-    def play(self, path: str):
+    def play(self, playable_list: IPlayableList):
+        pass
+
+    @abstractmethod
+    def next(self):
+        pass
+
+    @abstractmethod
+    def previous(self):
         pass
 
     @abstractmethod
