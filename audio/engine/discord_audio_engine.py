@@ -11,6 +11,7 @@ from audio.engine.volume_options import (
     DEFAULT_VOLUME_INCREMENT_NORMALISED
 )
 from audio.engine.loop_modes import LoopModes
+from audio.playable.playable_interfaces import IPlayableList
 from audio.source.audio_source_interfaces import IDiscordAudioSource
 from audio.source.audio_source_factory import create_discord_audio_source_for_song
 from utils.math import clamp, get_percentage_value_from_normalised, get_normalised_value_from_percentage
@@ -22,8 +23,9 @@ class DiscordAudioEngine(IObservableAudioEngine):
         super().__init__()
         self._audio_client: VoiceClient = audio_client
         self._loop_state: LoopModes = LoopModes.NOT
-        self._current_audio_source: Optional[IDiscordAudioSource] = None
         self._volume_normalised: float = DEFAULT_VOLUME_NORMALISED
+        self._playable_list: Optional[IPlayableList] = None
+        self._current_audio_source: Optional[IDiscordAudioSource] = None
 
     @property
     def _audio_source(self) -> IDiscordAudioSource:
@@ -59,10 +61,8 @@ class DiscordAudioEngine(IObservableAudioEngine):
         self._set_source_volume(self._volume_normalised)
         self.notify_all_volume_level_percentage_subscribers(self.volume_percentage)
 
-    def play(self, path: str):
-        self.stop()
-        self._set_current_audio_source(path)
-        self._play_current_audio_source()
+    def _set_playable_list(self, playable_list: IPlayableList):
+        self._playable_list = playable_list
 
     def _set_current_audio_source(self, audio_source_filepath: str):
         self._current_audio_source: IDiscordAudioSource = create_discord_audio_source_for_song(
@@ -71,12 +71,27 @@ class DiscordAudioEngine(IObservableAudioEngine):
             self._volume_normalised
         )
 
+    def _play_song_from_filepath(self, audio_source_filepath: str):
+        self._set_current_audio_source(audio_source_filepath)
+        self._play_current_audio_source()
+
+    def play(self, playable_list: IPlayableList):
+        self.stop()
+        self._set_playable_list(playable_list)
+        self._play_song_from_filepath(self._playable_list.get_song())
+
     def _play_current_audio_source(self):
         self._play_audio_source(self._current_audio_source)
 
     def _play_audio_source(self, audio_source: IDiscordAudioSource):
         audio_source.reset_audio_source()
         self._audio_client.play(audio_source, after=self._on_song_end_callback)
+
+    def next(self):
+        self._play_song_from_filepath(self._playable_list.get_next_song())
+
+    def previous(self):
+        self._play_song_from_filepath(self._playable_list.get_previous_song())
 
     def stop(self):
         self._audio_client.stop()
@@ -110,3 +125,9 @@ class DiscordAudioEngine(IObservableAudioEngine):
     def _on_song_end_callback(self, _error):
         if self._loop_state is LoopModes.ONE:
             self._play_current_audio_source()
+
+        elif self._loop_state is LoopModes.QUEUE:
+            self.next()
+
+        elif self._loop_state is LoopModes.NOT:
+            self.stop()
