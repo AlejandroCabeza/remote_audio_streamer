@@ -59,7 +59,7 @@ class GuiApplication(QApplication):
         self.audio_engine = await self.audio_engine_factory.create_observable_audio_engine()
         self.audio_engine.subscribe_to_song_progress_percentage(self._update_song_progress_percentage)
         self.audio_engine.subscribe_to_volume_level_percentage(self._update_volume_slider_percentage_value)
-        self._update_volume_slider_percentage_value(self.audio_engine.volume_percentage)
+        self._update_volume_slider_percentage_value(int(self.audio_engine.volume_percentage))
 
     def _update_song_progress_percentage(self, percentage: int):
         self.slider_song_progress.setValue(percentage)
