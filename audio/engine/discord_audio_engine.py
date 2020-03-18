@@ -125,3 +125,9 @@ class DiscordAudioEngine(IObservableAudioEngine):
     def _on_song_end_callback(self, _error):
         if self._loop_state is LoopModes.ONE:
             self._play_current_audio_source()
+
+        elif self._loop_state is LoopModes.QUEUE:
+            self.next()
+
+        elif self._loop_state is LoopModes.NOT:
+            self.stop()
