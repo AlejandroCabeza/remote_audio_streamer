@@ -22,7 +22,7 @@ from gui.button_events import (
     on_slider_song_progress_value_change,
     on_slider_volume_value_change
 )
-from gui.utils import load_widget_from_ui_file
+from gui.utils.file_io_utils import load_widget_from_ui_file
 from gui.widgets.qclickableslider import QClickableSlider
 from gui.widgets.qtogglebutton import QToggleButton
 
