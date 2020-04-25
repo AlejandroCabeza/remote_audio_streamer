@@ -10,7 +10,6 @@ class SynchronousAudioBuffer(IAudioBuffer):
 
     def __init__(self, audio_file_path: str, channels: int, sampling_rate: int, raw_data_frame_size: int):
         self._raw_data_frame_size: int = raw_data_frame_size
-        print(self._raw_data_frame_size)
         self._raw_data_audio_buffer: BytesIO = BytesIO(
             get_raw_audio_data_from_audio_file(audio_file_path, channels, sampling_rate)
         )
