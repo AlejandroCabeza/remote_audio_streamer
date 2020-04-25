@@ -131,7 +131,7 @@ class DiscordAudioEngine(IObservableAudioEngine):
         self.notify_all_song_progress_percentage_subscribers(song_progress_percentage)
 
     def _on_song_end_callback(self, _error):
-        if self._loop_state is LoopModes.ONE:
+        if self._loop_state is LoopModes.ONE and self._current_audio_source:
             self._play_current_audio_source()
 
         elif self._loop_state is LoopModes.QUEUE:
