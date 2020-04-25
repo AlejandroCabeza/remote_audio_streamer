@@ -45,11 +45,19 @@ class DiscordAudioEngine(IObservableAudioEngine):
 
     @property
     def volume_percentage(self) -> float:
-        return get_percentage_value_from_normalised(self.volume_normalised)
+        return get_percentage_value_from_normalised(
+            self.volume_normalised,
+            MIN_VOLUME_NORMALISED,
+            MAX_VOLUME_NORMALISED
+        )
 
     @volume_percentage.setter
     def volume_percentage(self, value: float):
-        self.volume_normalised = get_normalised_value_from_percentage(value)
+        self.volume_normalised = get_normalised_value_from_percentage(
+            value,
+            MIN_VOLUME_NORMALISED,
+            MAX_VOLUME_NORMALISED
+        )
 
     @property
     def volume_normalised(self) -> float:
